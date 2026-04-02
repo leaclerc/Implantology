@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Implanto-Prothèse">
+<meta name="theme-color" content="#185FA5">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Restaurations implanto-prothétiques plurales — Outil pédagogique v3</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg-p:#ffffff;--bg-s:#f5f5f3;--bg-t:#eeede9;
+  --txt-p:#1a1a18;--txt-s:#5f5e5a;--txt-t:#888780;
+  --brd-t:rgba(0,0,0,0.12);--brd-s:rgba(0,0,0,0.22);--brd-p:rgba(0,0,0,0.35);
+  --r-md:8px;--r-lg:12px;
+  --font:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;
+}
+@media(prefers-color-scheme:dark){:root{
+  --bg-p:#1e1e1c;--bg-s:#2a2a28;--bg-t:#333330;
+  --txt-p:#f0efe9;--txt-s:#b4b2a9;--txt-t:#888780;
+  --brd-t:rgba(255,255,255,0.1);--brd-s:rgba(255,255,255,0.18);--brd-p:rgba(255,255,255,0.28);
+}}
+body{font-family:var(--font);color:var(--txt-p);background:var(--bg-t);min-height:100vh;}
+
+/* HEADER */
+.app-header{background:var(--bg-p);border-bottom:0.5px solid var(--brd-t);padding:1rem 2rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+.logo{display:flex;align-items:center;gap:10px;}
+.logo-icon{width:32px;height:32px;background:#185FA5;border-radius:var(--r-md);display:flex;align-items:center;justify-content:center;font-size:16px;}
+.logo-title{font-size:15px;font-weight:500;}
+.logo-sub{font-size:11px;color:var(--txt-t);}
+.app-badge{font-size:11px;padding:3px 10px;background:#E1F5EE;color:#085041;border-radius:20px;font-weight:500;}
+
+/* NAV */
+.app-nav{background:var(--bg-p);border-bottom:0.5px solid var(--brd-t);padding:0 2rem;display:flex;gap:0;overflow-x:auto;}
+.nav-btn{padding:14px 18px;border:none;border-bottom:2px solid transparent;background:transparent;color:var(--txt-s);font-size:14px;cursor:pointer;font-family:var(--font);white-space:nowrap;transition:all .15s;}
+.nav-btn:hover:not(.active){color:var(--txt-p);}
+.nav-btn.active{color:#185FA5;border-bottom-color:#185FA5;font-weight:500;}
+
+/* MAIN */
+.app-main{max-width:860px;margin:0 auto;padding:2rem 1rem;}
+.section{display:none;}
+.section.active{display:block;}
+
+/* PROTO TABS */
+.proto-tabs{display:flex;gap:8px;margin-bottom:1.5rem;flex-wrap:wrap;}
+.proto-tab{padding:8px 18px;border-radius:20px;border:0.5px solid var(--brd-s);background:var(--bg-p);color:var(--txt-s);font-size:13px;cursor:pointer;font-family:var(--font);transition:all .15s;}
+.proto-tab.trans.active{background:#E1F5EE;color:#085041;border-color:#1D9E75;font-weight:500;}
+.proto-tab.scel.active{background:#E6F1FB;color:#0C447C;border-color:#185FA5;font-weight:500;}
+.proto-tab.comb.active{background:#EEEDFE;color:#3C3489;border-color:#7F77DD;font-weight:500;}
+
+/* PROTO HEADER */
+.proto-header{display:flex;align-items:center;gap:14px;margin-bottom:1.5rem;padding:1.1rem 1.4rem;border-radius:var(--r-lg);border:0.5px solid var(--brd-t);background:var(--bg-p);}
+.proto-icon{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+.proto-title{font-size:18px;font-weight:500;}
+.proto-subtitle{font-size:13px;color:var(--txt-s);margin-top:3px;}
+
+/* STEPS NAV */
+.steps-nav{display:flex;align-items:center;gap:6px;margin-bottom:1.25rem;overflow-x:auto;padding-bottom:4px;}
+.step-dot{width:32px;height:32px;border-radius:50%;border:0.5px solid var(--brd-s);background:var(--bg-p);font-size:13px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--txt-s);flex-shrink:0;font-family:var(--font);}
+.step-connector{flex:1;height:0.5px;background:var(--brd-t);min-width:16px;}
+
+/* STEP CARD */
+.step-card{border:0.5px solid var(--brd-t);border-radius:var(--r-lg);overflow:hidden;background:var(--bg-p);margin-bottom:1rem;}
+.step-card-header{padding:1rem 1.4rem;border-bottom:0.5px solid var(--brd-t);display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.step-num{font-size:12px;font-weight:500;padding:3px 10px;border-radius:20px;}
+.step-title-row{padding:1rem 1.4rem;border-bottom:0.5px solid var(--brd-t);}
+.step-card-title{font-size:16px;font-weight:500;}
+.step-card-body{padding:1.1rem 1.4rem;}
+.step-card-body p{font-size:14px;color:var(--txt-s);line-height:1.65;margin-bottom:10px;}
+.photo-placeholder{border:1.5px dashed var(--brd-s);border-radius:var(--r-md);padding:2.5rem;text-align:center;color:var(--txt-t);font-size:13px;margin-top:14px;line-height:1.6;}
+.key-point{margin-top:12px;padding:10px 16px;border-radius:var(--r-md);font-size:13px;border-left:3px solid;line-height:1.55;}
+.key-point.warn{background:#FAEEDA;color:#633806;border-color:#EF9F27;}
+.key-point.info{background:#E6F1FB;color:#0C447C;border-color:#378ADD;}
+.key-point.success{background:#E1F5EE;color:#085041;border-color:#1D9E75;}
+
+/* PIÈGE INTÉGRÉ */
+.piege-inline{margin-top:14px;border:0.5px solid #F09595;border-radius:var(--r-md);overflow:hidden;}
+.piege-inline-header{display:flex;align-items:center;gap:8px;padding:9px 14px;background:#FCEBEB;cursor:pointer;user-select:none;}
+.piege-inline-label{font-size:12px;font-weight:500;color:#A32D2D;flex:1;}
+.piege-inline-chev{font-size:11px;color:#A32D2D;transition:transform .2s;}
+.piege-inline-chev.open{transform:rotate(90deg);}
+.piege-inline-body{display:none;padding:12px 14px;background:var(--bg-p);font-size:13px;color:var(--txt-s);line-height:1.6;}
+.piege-inline-body.open{display:block;}
+.piege-inline-sub{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.5px;color:var(--txt-t);margin-bottom:4px;margin-top:10px;}
+.piege-inline-sub:first-child{margin-top:0;}
+.piege-inline-source{font-size:11px;color:var(--txt-t);font-style:italic;margin-top:8px;padding-top:8px;border-top:0.5px solid var(--brd-t);}
+
+.step-btns{display:flex;justify-content:space-between;padding:1rem 1.4rem;border-top:0.5px solid var(--brd-t);background:var(--bg-p);}
+.step-btn{padding:8px 20px;border-radius:var(--r-md);border:0.5px solid var(--brd-s);background:var(--bg-p);color:var(--txt-s);font-size:13px;cursor:pointer;font-family:var(--font);}
+.step-btn:disabled{opacity:.3;cursor:default;}
+.step-btn:hover:not(:disabled){background:var(--bg-s);}
+.step-btn.next{color:#E6F1FB;border:none;}
+
+/* ARBRE DÉCISIONNEL */
+.decision-intro{background:var(--bg-p);border-radius:var(--r-lg);padding:1.1rem 1.4rem;margin-bottom:1.5rem;font-size:14px;color:var(--txt-s);border:0.5px solid var(--brd-t);line-height:1.6;}
+.decision-progress{display:flex;gap:8px;margin-bottom:1.25rem;align-items:center;font-size:13px;color:var(--txt-s);}
+.progress-dot{width:10px;height:10px;border-radius:50%;background:var(--brd-s);flex-shrink:0;}
+.progress-dot.done{background:#1D9E75;}
+.progress-dot.current{background:#378ADD;}
+.question-card{border:0.5px solid var(--brd-t);border-radius:var(--r-lg);padding:1.4rem;margin-bottom:1rem;background:var(--bg-p);}
+.question-label{font-size:11px;font-weight:500;color:var(--txt-t);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px;}
+.question-text{font-size:17px;font-weight:500;margin-bottom:10px;}
+.question-hint{font-size:13px;color:var(--txt-s);margin-bottom:1.4rem;line-height:1.6;}
+.choices{display:flex;flex-direction:column;gap:10px;}
+.choice-btn{padding:13px 18px;border-radius:var(--r-md);border:0.5px solid var(--brd-s);background:var(--bg-p);color:var(--txt-p);font-size:14px;cursor:pointer;text-align:left;font-family:var(--font);line-height:1.45;}
+.choice-btn:hover{background:var(--bg-s);border-color:var(--brd-p);}
+.choice-btn.analog{border-color:#888780;background:var(--bg-s);}
+.choice-btn.analog:hover{background:var(--brd-t);}
+.history{margin-bottom:1rem;}
+.history-item{display:flex;gap:10px;align-items:flex-start;padding:9px 13px;background:var(--bg-s);border-radius:var(--r-md);margin-bottom:6px;font-size:13px;}
+.history-q{color:var(--txt-s);flex:1;line-height:1.4;}
+.history-a{font-weight:500;color:var(--txt-p);white-space:nowrap;}
+
+/* RAPPEL ERREUR dans l'arbre */
+.decision-alert{margin-bottom:1rem;padding:10px 16px;border-radius:var(--r-md);font-size:13px;line-height:1.55;border-left:3px solid #E24B4A;background:#FCEBEB;color:#501313;}
+.decision-alert-title{font-weight:500;margin-bottom:3px;}
+
+/* RÉSULTATS */
+.result-card{border-radius:var(--r-lg);padding:1.4rem;margin-top:1rem;border:2px solid;}
+.result-card.trans{background:#E1F5EE;border-color:#1D9E75;}
+.result-card.scel{background:#E6F1FB;border-color:#185FA5;}
+.result-card.comb{background:#EEEDFE;border-color:#7F77DD;}
+.result-card.analog{background:#F1EFE8;border-color:#888780;}
+.result-card.impossible{background:#FCEBEB;border-color:#E24B4A;}
+.result-title{font-size:18px;font-weight:500;margin-bottom:8px;}
+.result-why{font-size:14px;line-height:1.65;margin-bottom:1rem;}
+.result-warning{margin-top:10px;padding:9px 14px;border-radius:var(--r-md);font-size:13px;background:rgba(0,0,0,0.04);color:var(--txt-s);line-height:1.5;}
+.restart-btn{margin-top:10px;padding:10px 20px;border-radius:var(--r-md);border:0.5px solid var(--brd-s);background:var(--bg-p);color:var(--txt-s);font-size:14px;cursor:pointer;width:100%;font-family:var(--font);}
+.restart-btn:hover{background:var(--bg-s);}
+.explore-btn{margin-top:10px;padding:10px 20px;border-radius:var(--r-md);border:none;background:#185FA5;color:#E6F1FB;font-size:14px;cursor:pointer;width:100%;font-family:var(--font);font-weight:500;}
+.explore-btn:hover{opacity:.9;}
+
+/* À PROPOS */
+.about-card{background:var(--bg-p);border:0.5px solid var(--brd-t);border-radius:var(--r-lg);padding:1.4rem;margin-bottom:1rem;}
+.about-card h2{font-size:16px;font-weight:500;margin-bottom:10px;}
+.about-card p{font-size:14px;color:var(--txt-s);line-height:1.65;margin-bottom:8px;}
+.about-card p:last-child{margin-bottom:0;}
+.about-tag{display:inline-block;font-size:12px;padding:3px 10px;border-radius:20px;margin:3px 3px 3px 0;}
+.about-tag.trans{background:#9FE1CB;color:#04342C;}
+.about-tag.scel{background:#B5D4F4;color:#042C53;}
+.about-tag.comb{background:#CECBF6;color:#26215C;}
+.about-tag.analog{background:#D3D1C7;color:#2C2C2A;}
+
+/* ===== ADAPTATIONS MOBILE ===== */
+@media(max-width:600px){
+
+  /* Header compact */
+  .app-header{padding:.75rem 1rem;}
+  .logo-title{font-size:13px;}
+  .app-badge{display:none;}
+
+  /* Nav : pleine largeur, onglets plus grands */
+  .app-nav{padding:0 .5rem;}
+  .nav-btn{padding:12px 12px;font-size:13px;}
+
+  /* Main padding réduit */
+  .app-main{padding:1rem .75rem;}
+
+  /* Proto tabs : pleine largeur */
+  .proto-tabs{gap:6px;}
+  .proto-tab{flex:1;text-align:center;padding:10px 8px;font-size:13px;}
+
+  /* Step dots plus grands (touch) */
+  .step-dot{width:38px;height:38px;font-size:14px;}
+
+  /* Cartes */
+  .step-card-body{padding:.9rem 1rem;}
+  .step-card-header{padding:.75rem 1rem;}
+  .step-title-row{padding:.75rem 1rem;}
+  .proto-header{padding:.9rem 1rem;}
+
+  /* Boutons navigation pleine largeur */
+  .step-btns{padding:.75rem 1rem;gap:8px;}
+  .step-btn{flex:1;padding:12px 8px;font-size:14px;text-align:center;}
+
+  /* Choix arbre : touch-friendly */
+  .choice-btn{padding:15px 14px;font-size:15px;line-height:1.5;}
+
+  /* Question card */
+  .question-card{padding:1.1rem 1rem;}
+  .question-text{font-size:16px;}
+
+  /* Historique */
+  .history-item{flex-direction:column;gap:4px;}
+  .history-a{white-space:normal;}
+
+  /* Résultats */
+  .result-card{padding:1.1rem;}
+  .result-title{font-size:16px;}
+  .restart-btn,.explore-btn{padding:14px 20px;font-size:15px;}
+
+  /* Photo placeholder moins haut */
+  .photo-placeholder{padding:1.5rem;}
+
+  /* À propos */
+  .about-card{padding:1rem;}
+}
+
+/* Touch targets minimum 44px */
+@media(max-width:600px){
+  button{min-height:44px;}
+  .step-dot{min-width:38px;min-height:38px;}
+}
+
+/* Prevent zoom on input focus iOS */
+@media(max-width:600px){
+  input,select,textarea{font-size:16px!important;}
+}
+
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="logo">
+    <div class="logo-icon">🦷</div>
+    <div>
+      <div class="logo-title">Implanto-prothèse numérique</div>
+      <div class="logo-sub">Outil pédagogique — Chirurgie dentaire</div>
+    </div>
+  </div>
+  <span class="app-badge">Léa CLERC — Thèse 2025</span>
+</header>
+
+<nav class="app-nav">
+  <button class="nav-btn active" onclick="showSection('protocoles',this)">Protocoles</button>
+  <button class="nav-btn" onclick="showSection('decision',this)">Arbre décisionnel</button>
+  <button class="nav-btn" onclick="showSection('apropos',this)">À propos</button>
+</nav>
+
+<main class="app-main">
+
+  <div class="section active" id="s-protocoles">
+    <div class="proto-tabs">
+      <button class="proto-tab trans active" onclick="setProto('trans',this)">🔩 Transvissée</button>
+      <button class="proto-tab scel" onclick="setProto('scel',this)">🦷 Scellée</button>
+      <button class="proto-tab comb" onclick="setProto('comb',this)">⚙️ Combinée</button>
+    </div>
+    <div id="proto-content"></div>
+  </div>
+
+  <div class="section" id="s-decision">
+    <div class="decision-intro">
+      Simulez un cas clinique fictif étape par étape. L'arbre intègre les voies numériques <strong>et</strong> analogiques, et signale les pièges cliniques à chaque carrefour décisionnel.
+    </div>
+    <div id="decision-content"></div>
+  </div>
+
+  <div class="section" id="s-apropos">
+    <div class="about-card">
+      <h2>À propos</h2>
+      <p>Outil pédagogique créé dans le cadre de la thèse de Léa CLERC — <em>Description des protocoles des principaux modes de restaurations prothétiques plurales fixées sur implants par voie numérique</em>.</p>
+      <p>Trois protocoles numériques couverts, plus la voie analogique de repli :</p>
+      <div style="margin:10px 0">
+        <span class="about-tag trans">Transvissée</span>
+        <span class="about-tag scel">Scellée</span>
+        <span class="about-tag comb">Combinée</span>
+        <span class="about-tag analog">Analogique</span>
+      </div>
+    </div>
+    <div class="about-card">
+      <h2>Mode d'emploi</h2>
+      <p><strong>Protocoles</strong> — 6 étapes par protocole. Chaque étape intègre un encart dépliable "Pièges &amp; erreurs" sourcé dans la littérature.</p>
+      <p><strong>Arbre décisionnel</strong> — 4 à 6 questions selon le contexte. Tous les chemins aboutissent à une recommandation. Des rappels d'erreurs fréquentes s'affichent aux carrefours critiques. La voie analogique est proposée si les conditions numériques ne sont pas réunies.</p>
+    </div>
+    <div class="about-card">
+      <h2>Références principales</h2>
+      <p>Wittneben JG et al. Screw retained vs. cement retained implant-supported fixed dental prosthesis. <em>Periodontol 2000</em>, 2017.</p>
+      <p>Schmidt F et al. Accuracy of digital implant impressions: A systematic review. <em>Clin Oral Implants Res</em>, 2022.</p>
+      <p>Pozzi A et al. Photogrammetry versus intraoral scanning: systematic review &amp; meta-analysis. <em>Clin Implant Dent Relat Res</em>, 2025.</p>
+      <p>Unsal GS, Turkyilmaz I. Advantages and limitations of implant surgery with CAD/CAM surgical guides. <em>J Clin Exp Dent</em>, 2020.</p>
+      <p>Drancourt N et al. Accuracy of conventional and digital impressions for full-arch implant-supported prostheses. <em>J Pers Med</em>, 2023.</p>
+      <p>Faeghinejad M et al. The CAD/CAM compound prosthesis. <em>Int J Periodontics Restorative Dent</em>, 2019.</p>
+      <p style="font-size:13px;color:var(--txt-t);margin-top:10px;">Version 3.0 — Pièges intégrés aux protocoles, arbre décisionnel complet avec voie analogique.</p>
+    </div>
+  </div>
+
+</main>
+
+<script>
+// ─── DONNÉES PIÈGES PAR ÉTAPE ───────────────────────────────────────────────
+const PIEGES_ETAPES = {
+  trans: [
+    { // étape 0 — planification
+      title: "Raisonnement chirurgie-first",
+      danger: "Poser les implants sans projet prothétique défini aboutit à des axes incompatibles avec le vissage. Correction impossible a posteriori.",
+      prevention: "Toujours débuter par le wax-up numérique. L'axe implantaire doit permettre le passage de vis en occlusal ou palatin.",
+      source: "Echecs et complications — Le Fil Dentaire, 2016 ; Unsal & Turkyilmaz, J Clin Exp Dent, 2020"
+    },
+    { // étape 1 — guide chirurgical
+      title: "Surestimation de la précision du guide CFAO",
+      danger: "Des déviations angulaires jusqu'à 5° et des erreurs linéaires jusqu'à 2,3 mm ont été mesurées en clinique. Aucun guide ne garantit un positionnement parfait.",
+      prevention: "Ancrer le guide avec des vis de stabilisation. Prévoir une marge de sécurité sur les structures nobles (nerf alvéolaire, sinus).",
+      source: "Unsal GS, Turkyilmaz I. J Clin Exp Dent, 2020 (PMC7195681)"
+    },
+    { // étape 2 — empreinte
+      title: "Scanbody instable ou hors bibliothèque",
+      danger: "Un scanbody mal serré ou non référencé dans le logiciel invalide silencieusement toute l'empreinte. Erreur visible uniquement à l'essayage.",
+      prevention: "Vérifier le serrage de chaque scanbody au couple recommandé. N'utiliser que des scanbodies présents dans la bibliothèque du logiciel CAO.",
+      source: "Schmidt F et al. Clin Oral Implants Res, 2022 ; Drancourt N et al. J Pers Med, 2023"
+    },
+    { // étape 3 — laboratoire
+      title: "Défaut d'adaptation passive non détecté",
+      danger: "Une armature non passive génère des contraintes mécaniques sur les implants ostéo-intégrés, conduisant à une résorption osseuse péri-implantaire progressive.",
+      prevention: "Réaliser systématiquement le test de vissage unique (one-screw test) avant validation de l'armature. Ne jamais serrer toutes les vis simultanément en premier essayage.",
+      source: "Wittneben JG et al. Periodontol 2000, 2017 ; Echecs et complications — Le Fil Dentaire, 2016"
+    },
+    { // étape 4 — mise en place
+      title: "Dévissage révélateur d'un problème biomécanique",
+      danger: "Un dévissage post-pose n'est jamais un incident isolé. Il signale un déséquilibre biomécanique latent (occlusion, surcharge, cantilever excessif).",
+      prevention: "Serrer au couple recommandé par le fabricant. Contrôler à 3 mois. En cas de dévissage : analyser les causes avant tout re-serrage.",
+      source: "Wittneben JG et al. Periodontol 2000, 2017 ; Echecs et complications — Le Fil Dentaire, 2016"
+    },
+    { // étape 5 — maintenance
+      title: "Absence de maintenance péri-implantaire structurée",
+      danger: "L'absence de rappels réguliers est un facteur de risque indépendant de péri-implantite. Les taux de survie implantaire chutent significativement sans maintenance bi-annuelle.",
+      prevention: "Définir le protocole de maintenance dès la planification. Rappels minimum bi-annuels. Radiographies de contrôle annuelles.",
+      source: "La péri-implantite, conséquence d'erreurs thérapeutiques — IFCIA Dr Antoun ; Thèse DUMAS, 2021"
+    }
+  ],
+  scel: [
+    { // étape 0
+      title: "Espace prothétique insuffisant pour la restauration scellée",
+      danger: "Un espace < 7 mm entre la plateforme implantaire et l'antagoniste rend le pilier trop court pour assurer une rétention suffisante par scellement.",
+      prevention: "Mesurer l'espace prothétique au stade de la planification. Si < 7 mm, envisager une restauration transvissée (4–5 mm suffisent).",
+      source: "Hierarchy of restorative space — J Prosthet Dent, 2019 (PMID 31352966)"
+    },
+    { // étape 1
+      title: "Surestimation de la précision du guide CFAO",
+      danger: "Des déviations angulaires jusqu'à 5° et des erreurs linéaires jusqu'à 2,3 mm ont été mesurées en clinique. Aucun guide ne garantit un positionnement parfait.",
+      prevention: "Ancrer le guide avec des vis de stabilisation. Prévoir une marge de sécurité sur les structures nobles.",
+      source: "Unsal GS, Turkyilmaz I. J Clin Exp Dent, 2020 (PMC7195681)"
+    },
+    { // étape 2
+      title: "Limites marginales trop sous-gingivales",
+      danger: "Les limites trop sous-gingivales rendent le retrait des excès de ciment impossible, exposant directement au risque de péri-implantite.",
+      prevention: "Positionner les limites en juxta-gingival. Si sous-gingival nécessaire : utiliser un ciment radio-opaque et contrôle radiographique immédiat.",
+      source: "Schmidt F et al. Clin Oral Implants Res, 2022"
+    },
+    { // étape 3
+      title: "Défaut d'adaptation marginale du pilier usiné",
+      danger: "Une adaptation marginale > 80 µm compromet l'étanchéité et favorise l'accumulation bactérienne à la jonction pilier-couronne.",
+      prevention: "Vérifier l'adaptation marginale avant livraison. La CFAO permet d'atteindre < 80 µm — exiger ce standard au laboratoire.",
+      source: "CFAO et adaptation marginale — Evaluation adaptation CFAO, ResearchGate, 2013"
+    },
+    { // étape 4
+      title: "Excès de ciment péri-implantaire — première cause de péri-implantite",
+      danger: "Première cause de complications biologiques dans les restaurations scellées (Sailer et al. 2012). Les résidus de ciment sous-gingivaux provoquent une péri-implantite irréversible si non détectés.",
+      prevention: "Ciment radio-opaque obligatoire. Contrôle radiographique immédiat post-scellement. Retrait immédiat de tout excès visible. Envisager la transvissée si accès difficile.",
+      source: "Sailer I et al. Clin Oral Implants Res, 2012 ; IFCIA Dr Antoun"
+    },
+    { // étape 5
+      title: "Non-récupérabilité : complication impossible à gérer",
+      danger: "La restauration scellée définitivement est non récupérable sans destruction. Toute complication (fracture, dévissage du pilier) impose une dépose destructrice.",
+      prevention: "Envisager un ciment provisoire à résistance modulée pour les premières années. Réévaluer à 2 ans avant scellement définitif.",
+      source: "Wittneben JG et al. Periodontol 2000, 2017"
+    }
+  ],
+  comb: [
+    { // étape 0
+      title: "Sous-estimation de la complexité de planification",
+      danger: "La restauration combinée exige une planification en deux niveaux (armature + superstructure). Une conception incomplète conduit à des canaux d'accès non alignés, rendant la prothèse non récupérable.",
+      prevention: "Planifier simultanément l'armature transvissée ET la superstructure dès le wax-up numérique. Impliquer le prothésiste dès la phase de planification.",
+      source: "Faeghinejad M et al. Int J Periodontics Restorative Dent, 2019"
+    },
+    { // étape 1
+      title: "Surestimation de la précision du guide CFAO",
+      danger: "Des déviations angulaires jusqu'à 5° ont été mesurées. En cas de restauration combinée sur piliers MUA, une déviation non compensée rend les canaux d'accès inaccessibles.",
+      prevention: "Planifier les piliers MUA angulés pour compenser les déviations prévisibles. Vérifier l'accès aux vis avant toute prise d'empreinte définitive.",
+      source: "Unsal GS, Turkyilmaz I. J Clin Exp Dent, 2020 (PMC7195681)"
+    },
+    { // étape 2
+      title: "Empreinte full-arch sans photogrammétrie — risque de défaut passif",
+      danger: "Les déviations angulaires de l'IOS seul dépassent le seuil critique de 1° sur les grandes arcades. Plus le nombre d'implants est élevé, plus le seuil tolérable d'inadaptation est bas.",
+      prevention: "Au-delà de 4 implants : associer obligatoirement la photogrammétrie. Réaliser le one-screw test sur l'armature avant tout scellement de la superstructure.",
+      source: "Pozzi A et al. Clin Implant Dent Relat Res, 2025 (PMC12144927) ; Drancourt N et al. J Pers Med, 2023"
+    },
+    { // étape 3
+      title: "Canaux d'accès non alignés entre armature et superstructure",
+      danger: "Si les canaux d'accès de la superstructure et de l'armature ne sont pas parfaitement alignés, la prothèse perd son avantage principal : la récupérabilité.",
+      prevention: "Vérifier l'alignement des canaux sur le modèle virtuel avant fabrication. Demander une simulation en CAO avant usinage.",
+      source: "Faeghinejad M et al. Int J Periodontics Restorative Dent, 2019"
+    },
+    { // étape 4
+      title: "Excès de ciment lors du scellement intra-oral de la superstructure",
+      danger: "Le scellement en bouche expose au même risque que les restaurations scellées classiques, avec un accès encore plus difficile en cas de ciment extravagant.",
+      prevention: "Sceller avec un minimum de ciment. Réaliser une phase d'essayage à sec complet avant tout scellement définitif. Nettoyer les excès avant la prise du ciment.",
+      source: "Sailer I et al. Clin Oral Implants Res, 2012 ; Faeghinejad M et al. 2019"
+    },
+    { // étape 5
+      title: "Absence de contrôle des couples de serrage à distance",
+      danger: "La complexité mécanique de la restauration combinée (double interface vis + ciment) exige une surveillance renforcée. Un dévissage passé inaperçu peut usurer l'hexagone implantaire.",
+      prevention: "Contrôle obligatoire à 3 mois. Protocole de maintenance documenté. Informer le patient des signes d'alerte (mobilité, douleur à la mastication).",
+      source: "Wittneben JG et al. Periodontol 2000, 2017 ; Echecs et complications — Le Fil Dentaire, 2016"
+    }
+  ]
+};
+
+// ─── DONNÉES PROTOCOLES ──────────────────────────────────────────────────────
+const PROTOCOLS = {
+  trans: {
+    label:'Restauration transvissée', icon:'🔩', iconBg:'#E1F5EE',
+    subtitle:'Vissage direct sur implant ou pilier MUA — récupérabilité maximale',
+    color:{bg:'#E1F5EE',text:'#085041',badge:'#9FE1CB',badgeText:'#04342C',btn:'#0F6E56'},
+    steps:[
+      {title:'Analyse pré-implantaire & projet prothétique', tag:'Phase pré-implantaire',
+       content:"Empreinte optique des arcades et numérisation complète. Réalisation du wax-up numérique pour définir le projet prothétique final. L'axe implantaire doit permettre un accès vissé en zone occlusale ou palatine.",
+       point:{type:'warn',text:"Point critique : l'axe implantaire doit être planifié en amont pour permettre le passage de la vis sans compromettre l'esthétique."}},
+      {title:'Guide chirurgical & pose implantaire guidée', tag:'Phase chirurgicale',
+       content:"Conception et fabrication du guide chirurgical par CFAO à partir du CBCT fusionné avec les données optiques. Pose des implants selon l'axe prothétique défini.",
+       point:{type:'info',text:"La pose guidée est particulièrement indiquée dans les cas pluraux complexes où le parallélisme inter-implantaire est critique."}},
+      {title:'Empreinte implantaire numérique', tag:'Phase prothétique',
+       content:"Mise en place des scanbodies sur les implants ou piliers MUA. Empreinte optique intra-buccale. Le logiciel reconnaît la géométrie des scanbodies pour calculer la position tridimensionnelle exacte de chaque implant.",
+       point:{type:'warn',text:"Vérifier la stabilité de chaque scanbody avant la prise d'empreinte. Un scanbody mal serré invalide l'empreinte."}},
+      {title:'Laboratoire CFAO — modélisation & fabrication', tag:'Phase laboratoire',
+       content:"Conception de la restauration sur logiciel CAO. Usinage ou impression 3D selon le matériau choisi (zircone, titane, PMMA provisoire). Contrôle de l'adaptation passive de l'armature.",
+       point:{type:'info',text:"L'adaptation passive est un critère essentiel en prothèse plurale transvissée pour éviter les contraintes mécaniques sur les implants."}},
+      {title:'Essayage & mise en place', tag:'Phase clinique finale',
+       content:"Essayage et contrôle de l'occlusion, de l'esthétique et de l'adaptation. Serrage des vis au couple recommandé par le fabricant. Obturation des puits de vis avec composite.",
+       point:{type:'success',text:"Avantage clé : la restauration transvissée est entièrement récupérable à tout moment pour maintenance ou réparation."}},
+      {title:'Suivi & maintenance', tag:'Suivi',
+       content:"Contrôle radiographique de l'os péri-implantaire. Vérification du couple de serrage des vis à 3 mois. Maintenance professionnelle et instructions d'hygiène adaptées.",
+       point:{type:'success',text:"Prévoir un contrôle du couple de serrage à 3 mois puis annuellement."}}
+    ]
+  },
+  scel: {
+    label:'Restauration scellée', icon:'🦷', iconBg:'#E6F1FB',
+    subtitle:'Scellement sur pilier personnalisé — esthétique optimale',
+    color:{bg:'#E6F1FB',text:'#0C447C',badge:'#B5D4F4',badgeText:'#042C53',btn:'#185FA5'},
+    steps:[
+      {title:'Analyse pré-implantaire & projet prothétique', tag:'Phase pré-implantaire',
+       content:"Empreinte optique et wax-up numérique. Le projet prothétique doit anticiper la hauteur prothétique disponible (minimum 7 mm) et le profil d'émergence souhaité pour le pilier.",
+       point:{type:'warn',text:"L'espace prothétique doit être ≥ 7 mm entre la plateforme implantaire et le bord occlusal antagoniste."}},
+      {title:'Guide chirurgical & pose implantaire guidée', tag:'Phase chirurgicale',
+       content:"Conception du guide chirurgical. La pose implantaire peut tolérer une légère divergence axiale grâce à la latitude offerte par le pilier personnalisé.",
+       point:{type:'info',text:"La restauration scellée offre plus de souplesse pour compenser les angulations légères à modérées (< 20°)."}},
+      {title:'Empreinte implantaire numérique & pilier personnalisé', tag:'Phase prothétique',
+       content:"Empreinte optique avec scanbodies. Conception du pilier personnalisé en CFAO (titane ou zircone) avec les limites marginales positionnées en juxta ou légèrement sous-gingivales.",
+       point:{type:'warn',text:"Les limites trop sous-gingivales exposent au risque de surciment non éliminable. Préférer le juxta-gingival."}},
+      {title:'Laboratoire CFAO — pilier & couronne', tag:'Phase laboratoire',
+       content:"Usinage du pilier personnalisé et de la superstructure prothétique. La CFAO permet une adaptation marginale inférieure à 80 µm.",
+       point:{type:'info',text:"Les piliers en zircone sont préférés en zone antérieure pour l'esthétique gingivale. Les piliers titane sont recommandés en postérieur."}},
+      {title:'Mise en place du pilier & scellement', tag:'Phase clinique finale',
+       content:"Vissage du pilier personnalisé au couple recommandé. Scellement de la couronne avec ciment radio-opaque. Élimination rigoureuse des excès sous contrôle visuel et radiographique.",
+       point:{type:'warn',text:"Risque majeur : excès de ciment = première cause de péri-implantite dans les restaurations scellées (Sailer et al. 2012)."}},
+      {title:'Suivi & maintenance', tag:'Suivi',
+       content:"Contrôle radiographique immédiat pour détecter tout résidu de ciment. Surveillance des tissus péri-implantaires. La restauration scellée définitivement est non récupérable sans destruction.",
+       point:{type:'warn',text:"Difficulté de récupération : prévoir un ciment provisoire à résistance modulée pour les premières années."}}
+    ]
+  },
+  comb: {
+    label:'Restauration combinée (scello-vissée)', icon:'⚙️', iconBg:'#EEEDFE',
+    subtitle:'Superstructure scellée sur armature transvissée — compromis récupérabilité/esthétique',
+    color:{bg:'#EEEDFE',text:'#3C3489',badge:'#CECBF6',badgeText:'#26215C',btn:'#534AB7'},
+    steps:[
+      {title:'Analyse pré-implantaire & projet prothétique', tag:'Phase pré-implantaire',
+       content:"Empreinte optique et wax-up numérique. Le projet prothétique doit définir simultanément l'armature transvissée et la superstructure scellée. Indication principale : cas pluraux à angulations multiples.",
+       point:{type:'info',text:"Indication principale : cas pluraux à angulations implantaires multiples (15–35°) nécessitant des piliers MUA angulés."}},
+      {title:'Guide chirurgical & pose implantaire guidée', tag:'Phase chirurgicale',
+       content:"Pose des implants guidée. Des piliers MUA angulés permettent de ramener les axes prothétiques en zone occlusale. La conception numérique permet de simuler ces corrections en amont.",
+       point:{type:'info',text:"Les piliers MUA angulés (17° ou 30°) permettent de corriger les implants distaux inclinés dans les protocoles All-on-4/6."}},
+      {title:'Empreinte implantaire numérique', tag:'Phase prothétique',
+       content:"Empreinte optique avec scanbodies sur piliers MUA. Dans les cas full-arch, la photogrammétrie complète le scanner intra-oral pour améliorer la précision sur les grandes distances inter-implantaires.",
+       point:{type:'warn',text:"La précision de l'IOS seul diminue avec l'étendue de l'arcade. Au-delà de 4 implants : photogrammétrie obligatoire."}},
+      {title:'Laboratoire CFAO — armature & superstructure', tag:'Phase laboratoire',
+       content:"Conception et usinage de l'armature transvissée (titane ou Co-Cr) puis de la superstructure scellable (zircone ou PMMA) avec canaux d'accès aux vis alignés. Ce double usinage est le cœur du protocole.",
+       point:{type:'warn',text:"Point critique : les canaux d'accès de la superstructure et de l'armature doivent être parfaitement alignés pour permettre la récupérabilité."}},
+      {title:'Scellement intra-oral & mise en place', tag:'Phase clinique finale',
+       content:"Scellement de la superstructure sur l'armature en bouche pour vérifier la passivité. Après prise du ciment, la restauration est vissée. Les canaux d'accès sont obturés au composite.",
+       point:{type:'success',text:"Avantage clé : esthétique (pas de vis visible) ET récupérable en dévissant les puits d'accès."}},
+      {title:'Suivi & maintenance', tag:'Suivi',
+       content:"Contrôle du couple de serrage à 3 mois. La récupérabilité est possible à tout moment pour maintenance de l'armature ou remplacement de la superstructure en cas d'usure.",
+       point:{type:'success',text:"La superstructure peut être remplacée sans renouveler l'armature, réduisant les coûts de maintenance à long terme."}}
+    ]
+  }
+};
+
+// ─── ARBRE DÉCISIONNEL COMPLET ───────────────────────────────────────────────
+// Tous les chemins ont une sortie garantie.
+// Alertes = rappels d'erreurs affichés au-dessus de la question.
+const QUESTIONS = [
+  // Q1 — contexte édentement
+  { id:'q1',
+    text:"Quel est le contexte de l'édentement ?",
+    hint:"Le nombre et la distribution des édentements orientent d'emblée les possibilités prothétiques et le niveau de complexité numérique.",
+    choices:[
+      {label:'Édentement partiel (1–3 dents)', next:'q2'},
+      {label:'Édentement étendu plurale (4+ dents) ou full-arch', next:'q2b'}
+    ]
+  },
+  // Q2 — espace prothétique (partiel)
+  { id:'q2',
+    text:"Quelle est la hauteur prothétique disponible ?",
+    hint:"Distance entre la plateforme implantaire et le bord occlusal antagoniste. Critère déterminant pour le choix du mode de rétention.",
+    alert:{title:"Piège : mesurer avant de planifier",text:"Une hauteur prothétique insuffisante non détectée en amont est l'une des causes les plus fréquentes d'inadéquation entre protocole choisi et situation clinique réelle. (Ref: Hierarchy of restorative space, J Prosthet Dent 2019)"},
+    choices:[
+      {label:'Espace réduit < 5 mm', next:'q3_espace_reduit'},
+      {label:'Espace intermédiaire 5–7 mm', next:'q3_espace_inter'},
+      {label:'Espace suffisant ≥ 7 mm', next:'q3_esthetique'}
+    ]
+  },
+  // Q2b — full-arch : angulations
+  { id:'q2b',
+    text:"Les implants présentent-ils des angulations divergentes ?",
+    hint:"Dans les protocoles All-on-4/6, les implants distaux sont fréquemment inclinés à 30° ou plus.",
+    choices:[
+      {label:'Oui — implants inclinés > 15°', next:'q_comb_esthetique'},
+      {label:'Non — implants globalement parallèles', next:'q_fullarch_parallel'}
+    ]
+  },
+  // Q3 — espace réduit < 5mm
+  { id:'q3_espace_reduit',
+    text:"Avec un espace < 5 mm, la situation est-elle accessible au numérique ?",
+    hint:"À moins de 4 mm entre plateforme et antagoniste, aucune restauration fixée n'est possible sans intervention préalable.",
+    choices:[
+      {label:'4–5 mm : vissage direct niveau implantaire possible', result:'trans',
+       why:"L'espace réduit contre-indique le scellement. La transvissée directe à niveau implantaire est le seul choix possible (espace minimum 4 mm). Confirmer la faisabilité du chemin de la vis en préopératoire.",
+       warning:"Prévoir impérativement le trajet de la vis en planification 3D. Le guide chirurgical est indispensable à ce niveau de précision."},
+      {label:'< 4 mm : espace insuffisant pour toute restauration fixée', result:'impossible',
+       why:"L'espace est insuffisant pour toute restauration fixée implantaire. Deux options : (1) orthodontie d'ingression de l'antagoniste, (2) traitement implantaire différé après création de l'espace prothétique."}
+    ]
+  },
+  // Q3 — espace intermédiaire 5–7mm
+  { id:'q3_espace_inter',
+    text:"Avec 5–7 mm disponibles, le scanner intra-oral est-il utilisable ?",
+    hint:"Cet espace autorise une transvissée au niveau pilier (7,5 mm minimum) ou une transvissée niveau implant. Vérifier les conditions numériques.",
+    choices:[
+      {label:'Oui — scanner disponible et situation favorable', next:'q3_esthetique'},
+      {label:'Non — accès limité, salivation excessive ou patient non coopérant', result:'analog',
+       why:"Les conditions ne permettent pas une empreinte optique de qualité suffisante. Le protocole analogique (empreinte physique à porte-empreinte ouvert) est indiqué pour garantir la précision.",
+       warning:"Piège fréquent : vouloir forcer le numérique dans des conditions défavorables. Une empreinte optique de mauvaise qualité génère plus d'erreurs qu'une empreinte conventionnelle bien réalisée. (Schmidt et al. Clin Oral Implants Res, 2022)"}
+    ]
+  },
+  // Q3 — esthétique (espace ≥ 7mm)
+  { id:'q3_esthetique',
+    text:"Quelle est la situation esthétique ?",
+    hint:"La visibilité du puits de vis est un critère esthétique majeur, surtout en secteur antérieur visible.",
+    choices:[
+      {label:'Zone postérieure ou esthétique non prioritaire', next:'q4_recuperabilite'},
+      {label:'Zone antérieure — esthétique prioritaire', next:'q4_axe'}
+    ]
+  },
+  // Q4 — récupérabilité (postérieur)
+  { id:'q4_recuperabilite',
+    text:"La récupérabilité de la restauration est-elle importante ?",
+    hint:"La récupérabilité facilite la gestion des complications et la maintenance à long terme.",
+    choices:[
+      {label:'Oui — récupérabilité souhaitée', result:'trans',
+       why:"En zone postérieure avec espace suffisant, la transvissée est recommandée : récupérabilité totale, absence de risque lié au ciment péri-implantaire, maintenance facilitée.",
+       warning:"Penser à vérifier l'accès occlusal pour le serrage de la vis, parfois difficile en secteur 7."},
+      {label:'Non — facilité de réalisation prime', next:'q4_empreinte_cond'}
+    ]
+  },
+  // Q4 — conditions empreinte pour scellée
+  { id:'q4_empreinte_cond',
+    text:"Les conditions d'empreinte numérique sont-elles réunies ?",
+    hint:"Ouverture buccale suffisante, humidité contrôlable, scanbodies référencés dans la bibliothèque logicielle.",
+    alert:{title:"Piège : la courbe d'apprentissage du flux numérique",text:"Des études montrent que les erreurs liées à l'opérateur (chemin de scan, calibration, choix du scanbody) sont une cause majeure d'imprécision en empreinte optique implantaire. (Schmidt et al. Clin Oral Implants Res, 2022)"},
+    choices:[
+      {label:'Oui — conditions favorables', result:'scel',
+       why:"En zone postérieure, si la récupérabilité n'est pas prioritaire, la restauration scellée sur pilier personnalisé CFAO est une bonne option. Utiliser impérativement un ciment radio-opaque.",
+       warning:"Contrôle radiographique immédiat post-scellement obligatoire pour détecter les excès de ciment (Sailer et al. 2012 : 1ère cause de complications biologiques)."},
+      {label:'Non — conditions numériques défavorables', result:'analog',
+       why:"Les conditions numériques ne sont pas réunies pour garantir une empreinte de qualité suffisante. Le protocole analogique classique (porte-empreinte ouvert + silicone) est indiqué.",
+       warning:"Piège : une empreinte optique dans des conditions défavorables génère plus d'erreurs qu'une empreinte conventionnelle maîtrisée. Ne pas sacrifier la précision au profit du numérique. (Schmidt et al. 2022)"}
+    ]
+  },
+  // Q4 — axe implantaire (antérieur)
+  { id:'q4_axe',
+    text:"L'axe implantaire permet-il un puits de vis discret ?",
+    hint:"Un axe légèrement dévié rend le puits de vis visible en vestibulaire. L'ASC (Angulated Screw Channel) peut compenser jusqu'à 25°.",
+    choices:[
+      {label:'Axe idéal — puits de vis en occlusal ou palatin', result:'trans',
+       why:"Même en zone antérieure, si l'axe est idéal et le canal d'accès palatin ou occlusal, la transvissée est préférable : récupérabilité maximale, pas de risque de ciment. L'ASC peut compenser jusqu'à 25° de déviation."},
+      {label:'Axe dévié — puits de vis en vestibulaire', next:'q5_plural'}
+    ]
+  },
+  // Q5 — plurale ou unitaire (antérieur axe défavorable)
+  { id:'q5_plural',
+    text:"S'agit-il d'une restauration plurale ou unitaire ?",
+    hint:"La restauration combinée est particulièrement indiquée dans les cas pluraux complexes où l'esthétique est prioritaire.",
+    choices:[
+      {label:'Plurale — bridge ou arcade multiple', next:'q5_empreinte_cond'},
+      {label:'Unitaire', next:'q5_unitaire_cond'}
+    ]
+  },
+  // Q5 — conditions empreinte pour combinée
+  { id:'q5_empreinte_cond',
+    text:"Les conditions d'empreinte numérique full-arch sont-elles réunies ?",
+    hint:"Pour une restauration combinée plurale, la précision de l'empreinte est encore plus critique (adaptation passive de l'armature).",
+    alert:{title:"Piège : précision insuffisante sur grande arcade",text:"Les déviations angulaires de l'IOS seul dépassent régulièrement 1° sur les grandes arcades — seuil au-delà duquel des complications mécaniques sont attendues. (Pozzi et al. Clin Implant Dent Relat Res, 2025)"},
+    choices:[
+      {label:'Oui — photogrammétrie disponible si besoin', result:'comb',
+       why:"La restauration combinée est idéale : l'armature transvissée corrige les angulations et la superstructure scellée masque les puits de vis pour une esthétique optimale. Si > 4 implants : photogrammétrie obligatoire.",
+       warning:"Vérifier l'alignement des canaux d'accès en CAO avant usinage. Sans cet alignement, la prothèse perd sa récupérabilité. (Faeghinejad et al. 2019)"},
+      {label:'Non — empreinte optique non fiable dans ce contexte', result:'analog',
+       why:"Pour une restauration combinée exigeant une précision maximale (adaptation passive de l'armature), une empreinte conventionnelle par porte-empreinte ouvert est préférable si les conditions numériques ne sont pas optimales.",
+       warning:"Ne jamais compromettre l'adaptation passive : les contraintes mécaniques sur les implants qui en résultent conduisent à une résorption osseuse irréversible. (Wittneben et al. 2017)"}
+    ]
+  },
+  // Q5 — unitaire antérieur axe défavorable
+  { id:'q5_unitaire_cond',
+    text:"La situation muqueuse permet-elle un scellement maîtrisé ?",
+    hint:"Pour une unitaire antérieure avec axe défavorable, la restauration scellée est l'option esthétique. Mais elle nécessite des conditions de scellement contrôlables.",
+    choices:[
+      {label:'Oui — accès et isolation corrects', result:'scel',
+       why:"Pour une unitaire antérieure avec axe défavorable, la restauration scellée sur pilier en zircone offre le meilleur résultat esthétique. Ciment modulable recommandé pour les premières années.",
+       warning:"Pilier en zircone préféré pour l'esthétique gingivale. Limites juxta-gingivales. Ciment radio-opaque. Contrôle radiographique immédiat."},
+      {label:'Non — conditions de scellement défavorables', result:'trans',
+       why:"Si les conditions de scellement ne sont pas réunies (accès difficile, isolation impossible), la transvissée avec pilier personnalisé et obturation composite du puits de vis reste la solution la plus sûre cliniquement, même avec un compromis esthétique mineur."}
+    ]
+  },
+  // Q full-arch parallèle
+  { id:'q_fullarch_parallel',
+    text:"Quelle est la priorité clinique pour cette réhabilitation full-arch ?",
+    hint:"Les implants parallèles sur arcade complète permettent plusieurs options. L'esthétique et la robustesse guident le choix.",
+    choices:[
+      {label:'Esthétique prioritaire — secteur visible', next:'q_fullarch_empreinte'},
+      {label:'Robustesse fonctionnelle prioritaire', next:'q_fullarch_empreinte'}
+    ]
+  },
+  // Q full-arch conditions empreinte
+  { id:'q_fullarch_empreinte',
+    text:"Les conditions d'empreinte full-arch numérique sont-elles réunies ?",
+    hint:"Empreinte full-arch : photogrammétrie recommandée si > 4 implants. Sinon risque élevé de défaut d'adaptation passive.",
+    alert:{title:"Piège critique : empreinte optique seule insuffisante en full-arch",text:"Les déviations angulaires moyennes de l'IOS seul (0,28°–1,177°) dépassent le seuil critique de 1° sur les grandes arcades. La photogrammétrie est supérieure en précision angulaire. (Pozzi et al. Clin Implant Dent Relat Res, 2025)"},
+    choices:[
+      {label:'Oui — photogrammétrie disponible', result:'trans',
+       why:"Pour une réhabilitation full-arch sur implants parallèles, la prothèse transvissée sur piliers MUA est la solution de référence : robuste, récupérable, maintien facilité. Photogrammétrie recommandée pour garantir l'adaptation passive.",
+       warning:"One-screw test obligatoire avant validation finale de l'armature. Contrôle à 3 mois."},
+      {label:'Non — photogrammétrie indisponible, IOS seul', result:'analog',
+       why:"Sans photogrammétrie disponible, et pour une arcade complète > 4 implants, l'empreinte conventionnelle par porte-empreinte ouvert (open tray) reste la référence de précision. Elle permet une adaptation passive fiable de l'armature transvissée.",
+       warning:"Piège : ne pas utiliser l'IOS seul pour une arcade complète sans vérification complémentaire. La photogrammétrie ou l'empreinte conventionnelle sont toutes deux supérieures à l'IOS seul sur ces distances. (Pozzi et al. 2025)"}
+    ]
+  },
+  // Q combinée esthétique (full-arch angulé)
+  { id:'q_comb_esthetique',
+    text:"L'esthétique est-elle prioritaire pour ce cas full-arch angulé ?",
+    hint:"Les implants inclinés full-arch permettent la transvissée via piliers MUA. La combinée masque les accès vissés pour une esthétique optimale.",
+    choices:[
+      {label:'Oui — patient exigeant, secteur esthétique', next:'q_comb_empreinte'},
+      {label:'Non — robustesse fonctionnelle prime', result:'trans',
+       why:"La prothèse transvissée full-arch sur piliers MUA angulés est la solution la plus robuste et la plus simple à maintenir. Les puits de vis occlusaux sont acceptables.",
+       warning:"Vérifier que les angulations MUA permettent un accès occlusal aux vis. MUA 17° ou 30° selon l'inclinaison des implants distaux."}
+    ]
+  },
+  // Q combinée conditions empreinte full-arch
+  { id:'q_comb_empreinte',
+    text:"Les conditions d'empreinte numérique full-arch sont-elles réunies ?",
+    hint:"La restauration combinée exige une adaptation passive parfaite de l'armature. La précision de l'empreinte est critique.",
+    alert:{title:"Piège : précision insuffisante = armature non passive",text:"Une armature non passive sur arcade complète génère des contraintes résiduelles permanentes sur les implants, conduisant à une résorption osseuse progressive. (Wittneben et al. Periodontol 2000, 2017)"},
+    choices:[
+      {label:'Oui — photogrammétrie disponible ou ≤ 4 implants', result:'comb',
+       why:"La restauration combinée est idéale pour ce cas : l'armature transvissée sur MUA angulés corrige les angulations, et la superstructure scellée masque les puits de vis. Esthétique et récupérabilité réunies.",
+       warning:"Alignement des canaux d'accès à vérifier en CAO avant usinage. Photogrammétrie recommandée si > 4 implants. (Faeghinejad et al. 2019 ; Pozzi et al. 2025)"},
+      {label:'Non — photogrammétrie indisponible, conditions dégradées', result:'analog',
+       why:"Pour un cas combiné full-arch exigeant une précision maximale, l'empreinte conventionnelle open tray est préférable si la photogrammétrie est indisponible. L'adaptation passive de l'armature en dépend directement.",
+       warning:"Ne jamais compromettre l'adaptation passive d'une armature full-arch. Toute contrainte résiduelle est transmise directement aux implants et à l'os péri-implantaire."}
+    ]
+  }
+];
+
+// ─── ÉTAT ─────────────────────────────────────────────────────────────────────
+let currentProto = 'trans';
+let currentStep  = 0;
+let history      = [];
+let currentQ     = 'q1';
+
+// ─── FONCTIONS SECTION ───────────────────────────────────────────────────────
+function showSection(id, btn) {
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('s-'+id).classList.add('active');
+  btn.classList.add('active');
+}
+
+// ─── PROTOCOLES ──────────────────────────────────────────────────────────────
+function setProto(p, btn) {
+  currentProto=p; currentStep=0;
+  document.querySelectorAll('.proto-tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  renderProto();
+}
+
+function renderProto() {
+  const p=PROTOCOLS[currentProto];
+  const s=p.steps[currentStep];
+  const c=p.color;
+  const piege=PIEGES_ETAPES[currentProto][currentStep];
+
+  let dots='';
+  p.steps.forEach((st,i)=>{
+    if(i>0) dots+='<div class="step-connector"></div>';
+    const style=i===currentStep?`background:${c.bg};color:${c.text};border-color:${c.btn};`
+                :i<currentStep?'background:#E1F5EE;color:#085041;border-color:#1D9E75;':'';
+    dots+=`<div class="step-dot" style="${style}" onclick="goStep(${i})">${i+1}</div>`;
+  });
+
+  const piegeHtml=`
+    <div class="piege-inline">
+      <div class="piege-inline-header" onclick="togglePiege('pb${currentStep}','pc${currentStep}')">
+        <span style="font-size:14px">⚠️</span>
+        <span class="piege-inline-label">Piège clinique — ${piege.title}</span>
+        <span class="piege-inline-chev" id="pc${currentStep}">▶</span>
+      </div>
+      <div class="piege-inline-body" id="pb${currentStep}">
+        <div class="piege-inline-sub">Danger</div>
+        <div>${piege.danger}</div>
+        <div class="piege-inline-sub">Comment l'éviter</div>
+        <div>${piege.prevention}</div>
+        <div class="piege-inline-source">Source : ${piege.source}</div>
+      </div>
+    </div>`;
+
+  document.getElementById('proto-content').innerHTML=`
+    <div class="proto-header">
+      <div class="proto-icon" style="background:${p.iconBg}">${p.icon}</div>
+      <div><div class="proto-title">${p.label}</div><div class="proto-subtitle">${p.subtitle}</div></div>
+    </div>
+    <div class="steps-nav">${dots}</div>
+    <div class="step-card">
+      <div class="step-card-header">
+        <span class="step-num" style="background:${c.badge};color:${c.badgeText}">Étape ${currentStep+1} / ${p.steps.length}</span>
+        <span class="step-num" style="background:var(--bg-s);color:var(--txt-s)">${s.tag}</span>
+      </div>
+      <div class="step-title-row"><div class="step-card-title">${s.title}</div></div>
+      <div class="step-card-body">
+        <p>${s.content}</p>
+        <div class="key-point ${s.point.type}">${s.point.text}</div>
+        ${piegeHtml}
+        <div class="photo-placeholder">📷 Emplacement photo clinique<br><span style="font-size:12px">${s.title}</span></div>
+      </div>
+      <div class="step-btns">
+        <button class="step-btn" onclick="goStep(${currentStep-1})" ${currentStep===0?'disabled':''}>← Précédent</button>
+        <button class="step-btn next" onclick="goStep(${currentStep+1})" ${currentStep===p.steps.length-1?'disabled':''} style="background:${c.btn}">Suivant →</button>
+      </div>
+    </div>`;
+}
+
+function goStep(i) {
+  const p=PROTOCOLS[currentProto];
+  if(i<0||i>=p.steps.length) return;
+  currentStep=i; renderProto();
+}
+
+function togglePiege(bodyId, chevId) {
+  const body=document.getElementById(bodyId);
+  const chev=document.getElementById(chevId);
+  const open=body.classList.toggle('open');
+  chev.classList.toggle('open',open);
+}
+
+// ─── ARBRE DÉCISIONNEL ────────────────────────────────────────────────────────
+function renderDecision() {
+  const q=QUESTIONS.find(x=>x.id===currentQ);
+
+  let histHtml=history.map(h=>
+    `<div class="history-item"><span class="history-q">${h.q}</span><span class="history-a">→ ${h.a}</span></div>`
+  ).join('');
+
+  const total=6;
+  let dots='<div class="decision-progress">';
+  for(let i=0;i<total;i++){
+    const cls=i<history.length?'done':i===history.length?'current':'';
+    dots+=`<div class="progress-dot ${cls}"></div>`;
+  }
+  dots+=`<span style="margin-left:8px;font-size:12px;color:var(--txt-s)">Étape ${Math.min(history.length+1,total)} / ${total}</span></div>`;
+
+  const alertHtml=q.alert?`
+    <div class="decision-alert">
+      <div class="decision-alert-title">⚠️ ${q.alert.title}</div>
+      ${q.alert.text}
+    </div>`:'';
+
+  const choicesHtml=q.choices.map((ch,ci)=>
+    `<button class="choice-btn ${ch.result==='analog'||ch.next==='analog'?'analog':''}"
+      onclick="answer(${ci})"
+    >${ch.label}</button>`
+  ).join('');
+
+  document.getElementById('decision-content').innerHTML=
+    dots+
+    (histHtml?`<div class="history">${histHtml}</div>`:'')+
+    alertHtml+
+    `<div class="question-card">
+      <div class="question-label">Question ${history.length+1}</div>
+      <div class="question-text">${q.text}</div>
+      <div class="question-hint">${q.hint}</div>
+      <div class="choices">${choicesHtml}</div>
+    </div>`;
+}
+
+function answer(choiceIdx) {
+  const q=QUESTIONS.find(x=>x.id===currentQ);
+  const ch=q.choices[choiceIdx];
+  history.push({q:q.text,a:ch.label});
+  if(ch.result){showResult(ch.result,ch.why||'',ch.warning||'');return;}
+  currentQ=ch.next;
+  renderDecision();
+}
+
+function showResult(type,why,warning) {
+  const labels={
+    trans:'Restauration transvissée numérique',
+    scel:'Restauration scellée numérique',
+    comb:'Restauration combinée (scello-vissée) numérique',
+    analog:'Protocole analogique recommandé',
+    impossible:'Implantologie fixée non indiquée'
+  };
+  const icons={trans:'🔩',scel:'🦷',comb:'⚙️',analog:'📋',impossible:'⚠️'};
+
+  const histHtml=history.map(h=>
+    `<div class="history-item"><span class="history-q">${h.q}</span><span class="history-a">→ ${h.a}</span></div>`
+  ).join('');
+
+  const warnHtml=warning?`<div class="result-warning">⚠️ ${warning}</div>`:'';
+
+  const analogNote=type==='analog'?
+    `<div class="result-warning" style="margin-top:10px">Le protocole analogique comprend : empreinte physique (porte-empreinte ouvert + silicone), coulée du modèle en plâtre, laboratoire conventionnel. Il reste la référence de précision dans les situations complexes ou lorsque les conditions numériques ne sont pas optimales.</div>`:'';
+
+  const protoBtn=(type==='trans'||type==='scel'||type==='comb')?
+    `<button class="explore-btn" onclick="exploreProto('${type}')">Explorer ce protocole →</button>`:'';
+
+  document.getElementById('decision-content').innerHTML=
+    `<div class="history">${histHtml}</div>
+    <div class="result-card ${type==='impossible'?'impossible':type}">
+      <div class="result-title">${icons[type]} ${labels[type]}</div>
+      <div class="result-why">${why}</div>
+      ${warnHtml}
+      ${analogNote}
+    </div>
+    ${protoBtn}
+    <button class="restart-btn" onclick="restartDecision()">↺ Nouveau cas fictif</button>`;
+}
+
+function exploreProto(type) {
+  currentProto=type; currentStep=0;
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('s-protocoles').classList.add('active');
+  document.querySelectorAll('.nav-btn')[0].classList.add('active');
+  document.querySelectorAll('.proto-tab').forEach(t=>{
+    t.classList.remove('active');
+    if(t.classList.contains(type)) t.classList.add('active');
+  });
+  renderProto();
+}
+
+function restartDecision() {
+  history=[]; currentQ='q1'; renderDecision();
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+renderProto();
+renderDecision();
+</script>
+</body>
+</html>
